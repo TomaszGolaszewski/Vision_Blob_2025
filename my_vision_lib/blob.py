@@ -41,18 +41,20 @@ def field_value(list_with_blobs: list[tuple], x: int, y: int) -> int:
         value_sum += AMPLIFICATION / value_per_blob
     return int(value_sum)
 
-def draw_blob(list_with_blobs: list) -> list[list[list]]:
+def draw_blob(list_with_blobs: list, width: int, height: int) -> cv2.typing.MatLike:
     """
     Creates canva with blobs image.
 
     Args:
         list_with_blobs (list): A list containing blob data to be used for determining
                                 pixel values in format [(pos_x, pos_y)].
+        width (int): Width in pixels of created image. 
+        height (int): height in pixels of created image. 
 
     Returns:
-        list[list[list]]: A 3D list representing the RGB image (height x width x color channels).
+        MatLike: A 3D list representing the RGB image (height x width x color channels).
     """
-    image = np.zeros((400,600,3), dtype=np.uint8)
+    image = np.zeros((height, width, 3), dtype=np.uint8)
     for y, row in enumerate(image):
         for x, pixel in enumerate(row):
             value = field_value(list_with_blobs, x, y)

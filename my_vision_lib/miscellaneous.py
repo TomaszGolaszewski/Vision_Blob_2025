@@ -6,7 +6,18 @@ import numpy as np
 import cv2
 import time 
 
-def get_objects_by_color(image_original):
+def get_objects_by_color(image_original: cv2.typing.MatLike, area_threshold: int = 5000) -> tuple[cv2.typing.MatLike, list]:
+    """
+    Method detects objects from passed image and returns masked image and list of found objects coordinates.
+
+    Args:
+        image_original (MatLike): Original image.
+        area_threshold (int): The limit size of the area that defines the found object.
+
+    Returns:
+        MatLike: masked image with drawn objects.
+        list: list of coordinates of found objects.
+    """
 
     found_objects_list = []
 
@@ -39,7 +50,7 @@ def get_objects_by_color(image_original):
     
     for contour in contours:
         area = cv2.contourArea(contour)
-        if (area > 5000):
+        if (area > area_threshold):
             x, y, w, h = cv2.boundingRect(contour)
             center_coordinates = (x+w//2, y+h//2)
             found_objects_list.append(center_coordinates)

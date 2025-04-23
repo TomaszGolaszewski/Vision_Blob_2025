@@ -3,9 +3,13 @@ import cv2
 import time 
 
 from my_vision_lib.miscellaneous import get_objects_by_color
+from my_vision_lib.blob import draw_blob
 
 
-def run():
+def main():
+
+    canva_scale = 3
+    object_area_size = 2000
 
     # capturing video through webcam
     webcam = cv2.VideoCapture(0)
@@ -13,7 +17,7 @@ def run():
         print("Cannot open camera!")
         exit()
 
-    # prepare for time measurement
+    # preparing for time measurement
     i = 0
     last_time = time.time()
 
@@ -22,26 +26,28 @@ def run():
 
         # reading the video from the webcam in image frames
         _, image_original_frame = webcam.read()
+        image_height, image_width, _ = image_original_frame.shape
 
-        image_processed, objects_found = get_objects_by_color(image_original_frame)
+        # detecting objects
+        image_processed, objects_found = get_objects_by_color(image_original_frame, object_area_size)
+
+        # scaling down, creatingcanva and scaling up - performance optimization
+        objects_found_scaled = [(obj[0] // canva_scale, obj[1] // canva_scale) for obj in objects_found]
+        image_blob = draw_blob(objects_found_scaled, image_width // canva_scale, image_height // canva_scale)
+        image_resized = cv2.resize(image_blob, (image_width, image_height), interpolation=cv2.INTER_LINEAR)
 
         # concatenate images
-        # row1 = np.concatenate((red_mask, red_mask_2), axis=1)
-        # row1_color = cv2.cvtColor(row1, cv2.COLOR_GRAY2BGR) # convert array from 1 to 3 channels
-        # row2 = np.concatenate((res_red, imageFrame), axis=1)
-        # allImages = np.concatenate((row1_color, row2), axis=0)
-        images_concatenated = np.concatenate((image_original_frame, image_processed), axis=1)
+        images_concatenated = np.concatenate((image_original_frame, image_processed, image_resized), axis=1)
         # draw window
-        cv2.imshow("Red Color Detection in Real-TIme", images_concatenated)
-        # cv2.imshow("Red Color Detection in Real-TIme", allImages)
+        cv2.imshow("Blob Detection in Real-TIme", images_concatenated)
 
         # measure time
         if time.time() > last_time + 1:
             last_time = time.time()
-            print("FPS:" + str(i))
+            print("FPS:", i)
             i = 0
         else:
-            i+=1
+            i += 1
 
         # program termination
         if cv2.waitKey(10) & 0xFF == ord('q'):
@@ -54,5 +60,4 @@ def run():
 
 
 if __name__ == "__main__":
-    # run_old()
-    run()
+    main()
