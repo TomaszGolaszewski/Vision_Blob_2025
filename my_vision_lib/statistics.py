@@ -47,6 +47,25 @@ class PointStabilized:
         if self.health:
             self.health -= 1
         return list_with_points
+    
+
+def handle_stabilized_points(blob_objects_list: list, found_coord_list: list) -> tuple[list, list]:
+
+    # stabilization of objects coordinates
+    for blob in blob_objects_list:
+        blob.pick_point_from_list(found_coord_list, 100)
+    # remove dead points
+    blob_objects_list = list(filter(lambda x: x.health, blob_objects_list))
+    # creation of new blob objects
+    if len(found_coord_list):
+        for new_object in found_coord_list:
+            blob_objects_list.append(PointStabilized(new_object))
+
+    # prepare new list of objects coordinates
+    # filter added to not show very new objects
+    stabilized_found_coord_list = [blob.coord for blob in filter(lambda x: len(x.history_coord) > 3, blob_objects_list)]
+
+    return blob_objects_list, stabilized_found_coord_list
 
         
 
